@@ -1,0 +1,33 @@
+namespace: subspace
+
+node:
+  defines: runnable
+  containers:
+    defines: containers
+    node:
+      image: subspacelabs/node-template-spartan:latest
+      user: root
+      ports:
+        - <- `${rpc-port}:9944`
+        - <- `${ws-port}:9933`
+        - <- `${p2p-port}:30333`
+      paths:
+        - <- `${monk-volume-path}/subspace_${name}:/subspace/data`
+      bash: <- `${entry-point} --name=${name} --dev --ws-external --rpc-external --prometheus-external --rpc-cors=all --base-path /var/spartan ${options}`
+  variables:
+    defines: variables
+    options: <- `--bootnodes=${bootnodes} --rpc-methods=unsafe --telemetry-url='wss://telemetry.polkadot.io/submit/ 9' `
+    pre: ''
+    name: node-template-spartan
+    entry-point: /node-template-spartan
+    bootnodes: /ip4/165.232.157.230/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp
+    rpc-port: 9944
+    ws-port: 9933
+    p2p-port: 30333
+# Seems WIP for local volumes, must test on provider cluster
+# volumes:
+#    defines: volumes
+#    subspace-db:
+#      size: 100
+#      kind: SSD
+#      path: <- `${monk-volume-path}/subspace_${name}`
